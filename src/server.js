@@ -5,6 +5,7 @@ import cors from "cors";
 import Soporte from "./models/soporte.js";
 import productosRoutes from "./routes/productos.js";
 import authRoutes from "./routes/auth.js";
+import comprasRoutes from "./routes/compras.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json()); // 👈 ESTO VA ANTES DE TODO
 // 🔥 LUEGO LAS RUTAS
 app.use("/api/auth", authRoutes);
 app.use("/api/productos", productosRoutes);
+app.use("/api/compras", comprasRoutes);
 
 // Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)

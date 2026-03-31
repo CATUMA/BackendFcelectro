@@ -5,7 +5,11 @@ const usuarioSchema = new mongoose.Schema({
   correo: String,
   password: String,
   
-  rol: String, // admin | cliente | soporte
+  rol: {
+  type: String,
+  enum: ["admin", "cliente", "soporte", "vendedor"],
+  default: "cliente"
+  },
 
   foto: {
     type: String,
