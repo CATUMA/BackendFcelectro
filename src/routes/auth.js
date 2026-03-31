@@ -28,12 +28,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
 // 🔹 REGISTRAR USUARIO
 router.post("/register", async (req, res) => {
   const { nombre, correo, password, rol } = req.body;
 
   try {
-    // Verificar si ya existe
     const existe = await Usuario.findOne({ correo });
 
     if (existe) {
@@ -42,7 +42,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Crear nuevo usuario
     const nuevoUsuario = new Usuario({
       nombre,
       correo,
@@ -64,6 +63,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
 // 🔹 LISTAR USUARIOS
 router.get("/usuarios", async (req, res) => {
   try {
@@ -73,6 +73,7 @@ router.get("/usuarios", async (req, res) => {
     res.status(500).json({ mensaje: "Error al obtener usuarios" });
   }
 });
+
 
 // 🔹 ACTUALIZAR ROL
 router.put("/usuarios/:id", async (req, res) => {
@@ -92,6 +93,7 @@ router.put("/usuarios/:id", async (req, res) => {
 });
 
 
+// 🔹 ELIMINAR USUARIO
 router.delete("/usuarios/:id", async (req, res) => {
   try {
     await Usuario.findByIdAndDelete(req.params.id);
@@ -100,6 +102,7 @@ router.delete("/usuarios/:id", async (req, res) => {
     res.status(500).json({ mensaje: "Error al eliminar usuario" });
   }
 });
+
 
 // 🔹 ACTUALIZAR FOTO PERFIL
 router.put("/usuarios/:id/foto", async (req, res) => {
@@ -118,5 +121,31 @@ router.put("/usuarios/:id/foto", async (req, res) => {
     res.status(500).json({ mensaje: "Error al actualizar foto" });
   }
 });
+
+
+// 🔍 BUSCAR CLIENTES
+router.get("/usuarios/buscar/:texto", async (req, res) => {
+  try {
+    const texto = req.params.texto;
+
+    const usuarios = await Usuario.find({
+      $and: [
+        { rol: "cliente" }, // 🔥 SOLO CLIENTES
+        {
+          $or: [
+            { nombre: { $regex: texto, $options: "i" } },
+            { correo: { $regex: texto, $options: "i" } }
+          ]
+        }
+      ]
+    });
+
+    res.json(usuarios);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al buscar clientes" });
+  }
+});
+
 
 export default router;

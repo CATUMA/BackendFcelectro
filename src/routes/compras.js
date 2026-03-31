@@ -1,15 +1,15 @@
 import express from "express";
 import Producto from "../models/producto.js";
-import Compra from "../models/compra.js"; // 🔥 IMPORTANTE
+import Compra from "../models/compra.js";
 
 const router = express.Router();
+
 
 // 🔥 REALIZAR COMPRA
 router.post("/", async (req, res) => {
   const { carrito, usuarioId } = req.body;
 
   try {
-
     let productosCompra = [];
     let total = 0;
 
@@ -30,7 +30,6 @@ router.post("/", async (req, res) => {
       producto.stock -= item.cantidad;
       await producto.save();
 
-      // 🔥 GUARDAR INFO LIMPIA (SIN IMAGEN)
       productosCompra.push({
         nombre: producto.nombre,
         precio: producto.precio,
@@ -40,9 +39,9 @@ router.post("/", async (req, res) => {
       total += producto.precio * item.cantidad;
     }
 
-    // 🔥 GUARDAR COMPRA (HISTORIAL)
+    // 🔥 GUARDAR COMPRA
     const nuevaCompra = new Compra({
-      usuarioId,
+      usuarioId, // 👈 consistente
       productos: productosCompra,
       total
     });
@@ -61,18 +60,53 @@ router.post("/", async (req, res) => {
 });
 
 
-// 🔥 HISTORIAL DE COMPRAS POR USUARIO (HU-08)
-router.get("/:usuarioId", async (req, res) => {
+// 🔥 HISTORIAL POR USUARIO (CLIENTE)
+router.get("/usuario/:usuarioId", async (req, res) => {
   try {
 
     const compras = await Compra.find({
       usuarioId: req.params.usuarioId
-    }).sort({ fecha: -1 }); // 🔥 más reciente primero
+    }).sort({ fecha: -1 });
 
     res.json(compras);
 
   } catch (error) {
     res.status(500).json({ mensaje: "Error al obtener historial" });
+  }
+});
+
+
+// 🔥 HISTORIAL GENERAL (ADMIN)
+router.get("/", async (req, res) => {
+  try {
+
+    const compras = await Compra.find()
+      .sort({ fecha: -1 });
+
+    res.json(compras);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al obtener compras" });
+  }
+});
+
+
+// 🔥 MÉTRICAS (DASHBOARD)
+router.get("/metricas", async (req, res) => {
+  try {
+
+    const compras = await Compra.find();
+
+    const totalVentas = compras.reduce((acc, c) => acc + c.total, 0);
+    const totalCompras = compras.length;
+
+    res.json({
+      totalVentas,
+      totalCompras
+    });
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error en métricas" });
   }
 });
 
