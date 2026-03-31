@@ -7,7 +7,7 @@ const router = express.Router();
 
 // 🔥 REALIZAR COMPRA
 router.post("/", async (req, res) => {
-  const { carrito, usuarioId } = req.body;
+  const { carrito, usuarioId, clienteNombre } = req.body; // 🔥 AGREGAR clienteNombre
 
   try {
     let productosCompra = [];
@@ -39,11 +39,17 @@ router.post("/", async (req, res) => {
       total += producto.precio * item.cantidad;
     }
 
+    // 🔢 GENERAR NÚMERO DE COMPROBANTE
+    const cantidad = await Compra.countDocuments();
+    const numeroComprobante = `FCE-${String(cantidad + 1).padStart(6, "0")}`;
+
     // 🔥 GUARDAR COMPRA
     const nuevaCompra = new Compra({
       usuarioId, // 👈 consistente
+      clienteNombre,          // 👈 NUEVO
       productos: productosCompra,
-      total
+      total,
+      numeroComprobante       // 👈 FALTABA ESTO
     });
 
     await nuevaCompra.save();

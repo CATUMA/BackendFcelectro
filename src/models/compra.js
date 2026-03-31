@@ -1,7 +1,15 @@
 import mongoose from "mongoose";
 
 const compraSchema = new mongoose.Schema({
+  numeroComprobante: {
+    type: String,
+    unique: true
+  },
+
   usuarioId: String,
+
+  clienteNombre: String,
+
   productos: [
     {
       nombre: String,
@@ -9,7 +17,9 @@ const compraSchema = new mongoose.Schema({
       cantidad: Number
     }
   ],
+
   total: Number,
+
   fecha: {
     type: Date,
     default: Date.now
