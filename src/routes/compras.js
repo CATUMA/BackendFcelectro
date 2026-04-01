@@ -116,4 +116,59 @@ router.get("/metricas", async (req, res) => {
   }
 });
 
+// 🔥 REPORTE MENSUAL DE VENTAS
+router.get("/reporte/mensual", async (req, res) => {
+  try {
+
+    const reporte = await Compra.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$fecha" },
+            month: { $month: "$fecha" }
+          },
+          totalVentas: { $sum: "$total" },
+          cantidadCompras: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ]);
+
+    res.json(reporte);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error en reporte mensual" });
+  }
+});
+
+
+// 🔥 PRODUCTOS MÁS VENDIDOS
+router.get("/reporte/top-productos", async (req, res) => {
+  try {
+
+    const reporte = await Compra.aggregate([
+      { $unwind: "$productos" },
+      {
+        $group: {
+          _id: "$productos.nombre",
+          totalVendido: { $sum: "$productos.cantidad" },
+          totalGanado: {
+            $sum: {
+              $multiply: ["$productos.precio", "$productos.cantidad"]
+            }
+          }
+        }
+      },
+      { $sort: { totalVendido: -1 } }
+    ]);
+
+    res.json(reporte);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error en reporte de productos" });
+  }
+});
+
 export default router;

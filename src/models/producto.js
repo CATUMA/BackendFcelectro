@@ -5,7 +5,12 @@ const productoSchema = new mongoose.Schema({
   descripcion: String,
   precio: Number,
   stock: Number,
-  imagen: String
+  imagen: String,
+  
+  oferta: {
+  type: Boolean,
+  default: false
+}
 });
 
 export default mongoose.model("Producto", productoSchema);

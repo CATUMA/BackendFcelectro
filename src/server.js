@@ -13,7 +13,8 @@ const app = express();
 
 // 🔥 PRIMERO MIDDLEWARES
 app.use(cors());
-app.use(express.json()); // 👈 ESTO VA ANTES DE TODO
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // 🔥 LUEGO LAS RUTAS
 app.use("/api/auth", authRoutes);

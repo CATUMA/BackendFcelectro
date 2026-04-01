@@ -11,9 +11,13 @@ router.get("/", async (req, res) => {
 
 // 🔹 REGISTRAR PRODUCTO
 router.post("/", async (req, res) => {
-  const nuevo = new Producto(req.body);
-  const guardado = await nuevo.save();
-  res.json(guardado);
+  try {
+    const nuevo = new Producto(req.body);
+    const guardado = await nuevo.save();
+    res.json(guardado);
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al registrar producto" });
+  }
 });
 
 // 🔹 EDITAR PRODUCTO
@@ -36,6 +40,42 @@ router.delete("/:id", async (req, res) => {
 router.get("/bajo-stock", async (req, res) => {
   const productos = await Producto.find({ stock: { $lt: 5 } });
   res.json(productos);
+});
+
+
+// 🔥 ENVIAR A OFERTAS (CORRECTO)
+router.put("/oferta/:id", async (req, res) => {
+  try {
+
+    const producto = await Producto.findById(req.params.id);
+
+    if (!producto) {
+      return res.status(404).json({ mensaje: "Producto no encontrado" });
+    }
+
+    producto.oferta = true;
+    await producto.save();
+
+    res.json({ mensaje: "Producto enviado a ofertas", producto });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al enviar a ofertas" });
+  }
+});
+
+
+// 🔥 OBTENER OFERTAS (CORRECTO)
+router.get("/ofertas", async (req, res) => {
+  try {
+
+    const ofertas = await Producto.find({ oferta: true });
+
+    res.json(ofertas);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al obtener ofertas" });
+  }
 });
 
 // producto con IMAGEN
