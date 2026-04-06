@@ -6,6 +6,7 @@ import Soporte from "./models/soporte.js";
 import productosRoutes from "./routes/productos.js";
 import authRoutes from "./routes/auth.js";
 import comprasRoutes from "./routes/compras.js";
+import soporteRoutes from "./routes/soporte.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/productos", productosRoutes);
 app.use("/api/compras", comprasRoutes);
+app.use("/api/soporte", soporteRoutes);
 
 // Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
