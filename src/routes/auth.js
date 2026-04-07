@@ -83,7 +83,7 @@ router.put("/usuarios/:id", async (req, res) => {
     const usuario = await Usuario.findByIdAndUpdate(
       req.params.id,
       { rol },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     res.json(usuario);
@@ -112,7 +112,7 @@ router.put("/usuarios/:id/foto", async (req, res) => {
     const usuario = await Usuario.findByIdAndUpdate(
       req.params.id,
       { foto },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     res.json(usuario);

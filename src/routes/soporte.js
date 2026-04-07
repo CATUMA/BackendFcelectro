@@ -7,39 +7,121 @@ const router = express.Router();
 // ✅ CREAR SOPORTE
 router.post("/", async (req, res) => {
   try {
-    const nuevo = new Soporte(req.body);
+    const nuevo = new Soporte({
+      ...req.body,
+      estado: "Pendiente",
+      notificado: false,
+    });
+
     await nuevo.save();
-    res.json(nuevo);
+
+    res.status(201).json({
+      ...nuevo.toObject(),
+      problema: nuevo.descripcion, // 🔥 MAPEO
+    });
+
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al guardar" });
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al guardar soporte" });
   }
 });
 
 
-// ✅ LISTAR TODOS (soporte técnico)
+// ✅ LISTAR TODOS
 router.get("/", async (req, res) => {
-  const data = await Soporte.find();
-  res.json(data);
+  try {
+    const data = await Soporte.find().sort({ createdAt: -1 });
+
+    // 🔥 MAPEO GLOBAL
+    const respuesta = data.map((item) => ({
+      ...item.toObject(),
+      problema: item.descripcion,
+    }));
+
+    res.json(respuesta);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error obteniendo datos" });
+  }
 });
 
 
 // ✅ HISTORIAL POR USUARIO
 router.get("/usuario/:id", async (req, res) => {
-  const data = await Soporte.find({
-    usuarioId: req.params.id,
-  });
-  res.json(data);
+  try {
+    const data = await Soporte.find({
+      usuarioId: req.params.id,
+    }).sort({ createdAt: -1 });
+
+    const respuesta = data.map((item) => ({
+      ...item.toObject(),
+      problema: item.descripcion,
+    }));
+
+    res.json(respuesta);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error obteniendo historial" });
+  }
+});
+
+
+// 🔔 NOTIFICACIONES
+router.get("/notificaciones", async (req, res) => {
+  try {
+    const data = await Soporte.find({ notificado: false })
+      .sort({ createdAt: -1 });
+
+    const respuesta = data.map((item) => ({
+      ...item.toObject(),
+      problema: item.descripcion,
+    }));
+
+    res.json(respuesta);
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error obteniendo notificaciones" });
+  }
+});
+
+
+// 🔔 MARCAR COMO LEÍDA
+router.put("/notificaciones/:id", async (req, res) => {
+  try {
+    const actualizado = await Soporte.findByIdAndUpdate(
+      req.params.id,
+      { notificado: true },
+      { returnDocument: "after" }
+    );
+
+    res.json({
+      ...actualizado.toObject(),
+      problema: actualizado.descripcion,
+    });
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error actualizando notificación" });
+  }
 });
 
 
 // ✅ ACTUALIZAR ESTADO
 router.put("/:id", async (req, res) => {
-  const actualizado = await Soporte.findByIdAndUpdate(
-    req.params.id,
-    { estado: req.body.estado },
-    { new: true }
-  );
-  res.json(actualizado);
+  try {
+    const actualizado = await Soporte.findByIdAndUpdate(
+      req.params.id,
+      { estado: req.body.estado },
+      { returnDocument: "after" }
+    );
+
+    res.json({
+      ...actualizado.toObject(),
+      problema: actualizado.descripcion,
+    });
+
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error actualizando estado" });
+  }
 });
 
 export default router;

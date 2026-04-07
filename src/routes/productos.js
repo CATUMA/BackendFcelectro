@@ -25,7 +25,7 @@ router.put("/:id", async (req, res) => {
   const actualizado = await Producto.findByIdAndUpdate(
     req.params.id,
     req.body,
-    { new: true }
+    { returnDocument: "after" }
   );
   res.json(actualizado);
 });
