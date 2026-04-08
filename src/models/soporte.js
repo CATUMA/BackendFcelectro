@@ -27,6 +27,19 @@ const soporteSchema = new mongoose.Schema(
       enum: ["Pendiente", "En proceso", "Finalizado"],
       default: "Pendiente",
     },
+
+    // 🔥 HISTORIAL DEFINIDO CORRECTAMENTE
+    historial: [
+      {
+        estado: String,
+        mensaje: String,
+        fecha: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     // 🔔 NOTIFICACIÓN
     notificado: {
       type: Boolean,
@@ -34,7 +47,7 @@ const soporteSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // 🔥 importante para ordenar
+    timestamps: true,
   }
 );
 
